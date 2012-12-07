@@ -122,10 +122,9 @@ public abstract class FieldType
 		StringBuilder strBuilder = new StringBuilder();
 
 		for (String str : elements)
-		{
-			if (elements.get(0) != str) strBuilder.append(',');
-			strBuilder.append('\'').append(str).append('\'');
-		}
+			strBuilder.append('\'').append(str).append('\'').append(',');
+
+		if (!elements.isEmpty()) strBuilder.deleteCharAt(strBuilder.length() - 1);
 
 		return strBuilder.toString();
 	}
@@ -153,6 +152,7 @@ public abstract class FieldType
 	/**
 	 * The string value of this type, e.g. 'int' or 'xref'.
 	 */
+	@Override
 	public String toString()
 	{
 		return this.getClass().getSimpleName().replace("Field", "").toLowerCase();

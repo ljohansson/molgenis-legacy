@@ -1,7 +1,3 @@
-/*
- * To change this template, choose Tools | Templates
- * and open the template in the editor.
- */
 package org.molgenis.util.trityper.reader;
 
 import java.io.File;
@@ -100,7 +96,8 @@ public class Gpio
 	{
 		if (!destFile.exists())
 		{
-			destFile.createNewFile();
+			boolean exists = destFile.createNewFile();
+			if (exists) throw new IOException(destFile + " already exists");
 		}
 
 		FileChannel source = null;

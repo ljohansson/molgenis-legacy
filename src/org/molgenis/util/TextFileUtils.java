@@ -1,10 +1,13 @@
 package org.molgenis.util;
 
+import java.io.BufferedReader;
 import java.io.File;
-import java.io.FileReader;
+import java.io.FileInputStream;
 import java.io.IOException;
+import java.io.InputStreamReader;
 import java.io.LineNumberReader;
 import java.io.RandomAccessFile;
+import java.nio.charset.Charset;
 
 import org.apache.commons.io.IOUtils;
 
@@ -25,7 +28,8 @@ public class TextFileUtils
 	 */
 	public static int getNumberOfLines(File inFile) throws IOException
 	{
-		LineNumberReader lnr = new LineNumberReader(new FileReader(inFile));
+		LineNumberReader lnr = new LineNumberReader(new InputStreamReader(new FileInputStream(inFile),
+				Charset.forName("UTF-8")));
 		try
 		{
 			lnr.skip(Long.MAX_VALUE);
@@ -49,16 +53,22 @@ public class TextFileUtils
 	public static boolean fileEndsWithNewlineChar(File inFile) throws Exception
 	{
 		RandomAccessFile raf = new RandomAccessFile(inFile, "r");
-		raf.seek(raf.length() - 1);
-		char c = (char) raf.readByte();
-		raf.close();
-		if (c == '\n' || c == '\r')
+		try
 		{
-			return true;
+			raf.seek(raf.length() - 1);
+			char c = (char) raf.readByte();
+			if (c == '\n' || c == '\r')
+			{
+				return true;
+			}
+			else
+			{
+				return false;
+			}
 		}
-		else
+		finally
 		{
-			return false;
+			raf.close();
 		}
 	}
 
@@ -82,7 +92,7 @@ public class TextFileUtils
 
 		int nrOfNewLines = 1;
 		boolean countingNewlines = true;
-		String terminatorSequence = "";
+		StringBuilder terminatorSequenceBuilder = new StringBuilder();
 
 		while (countingNewlines)
 		{
@@ -91,12 +101,12 @@ public class TextFileUtils
 
 			if (c == '\r')
 			{
-				terminatorSequence += "r";
+				terminatorSequenceBuilder.append('r');
 				nrOfNewLines++;
 			}
 			else if (c == '\n')
 			{
-				terminatorSequence += "n";
+				terminatorSequenceBuilder.append('n');
 				nrOfNewLines++;
 			}
 			else
@@ -110,9 +120,26 @@ public class TextFileUtils
 		// replace \r\n combinations with \n (note: separators are added in
 		// reverse
 		// order)
-		terminatorSequence = terminatorSequence.replaceAll("nr", "n");
+		String terminatorSequence = terminatorSequenceBuilder.toString().replaceAll("nr", "n");
 
 		return terminatorSequence.length();
 
+	}
+
+	public static int getNumberOfNonEmptyLines(File file, Charset charset) throws IOException
+	{
+		BufferedReader reader = new BufferedReader(new InputStreamReader(new FileInputStream(file), charset));
+		try
+		{
+			int count = 0;
+			String line;
+			while ((line = reader.readLine()) != null)
+				if (!line.isEmpty()) ++count;
+			return count;
+		}
+		finally
+		{
+			reader.close();
+		}
 	}
 }

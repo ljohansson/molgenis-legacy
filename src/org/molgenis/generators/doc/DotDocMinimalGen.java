@@ -5,6 +5,7 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.OutputStream;
 import java.io.OutputStreamWriter;
+import java.nio.charset.Charset;
 import java.util.List;
 import java.util.Map;
 
@@ -20,7 +21,7 @@ import freemarker.template.TemplateException;
 
 public class DotDocMinimalGen extends Generator
 {
-	public static final transient Logger logger = Logger.getLogger(DotDocMinimalGen.class);
+	private static final Logger logger = Logger.getLogger(DotDocMinimalGen.class);
 
 	// need to add input and output file
 	public static final String GRAPHVIZ_COMMAND_WINDOWS = "dot";
@@ -38,7 +39,11 @@ public class DotDocMinimalGen extends Generator
 		Map<String, Object> templateArgs = createTemplateArguments(options);
 
 		File target = new File(this.getDocumentationPath(options) + "/objectmodel-uml-diagram-summary.dot");
-		target.getParentFile().mkdirs();
+		boolean created = target.getParentFile().mkdirs();
+		if (!created && !target.getParentFile().exists())
+		{
+			throw new IOException("could not create " + target.getParentFile());
+		}
 
 		List<Entity> entityList = model.getEntities();
 		// MolgenisLanguage.sortEntitiesByDependency(entityList, model);
@@ -70,7 +75,7 @@ public class DotDocMinimalGen extends Generator
 	{
 
 		OutputStream targetOut = new FileOutputStream(target);
-		template.process(templateArgs, new OutputStreamWriter(targetOut));
+		template.process(templateArgs, new OutputStreamWriter(targetOut, Charset.forName("UTF-8")));
 		targetOut.close();
 	}
 

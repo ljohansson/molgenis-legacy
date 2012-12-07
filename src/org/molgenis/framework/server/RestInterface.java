@@ -14,10 +14,10 @@ import org.molgenis.framework.db.QueryRule;
 import org.molgenis.framework.ui.html.SelectInput;
 import org.molgenis.framework.ui.html.StringInput;
 import org.molgenis.util.CsvWriter;
-import org.molgenis.util.TupleWriter;
 import org.molgenis.util.Entity;
 import org.molgenis.util.HttpServletRequestTuple;
 import org.molgenis.util.Tuple;
+import org.molgenis.util.TupleWriter;
 
 /**
  * Implementation of the REST interface
@@ -26,7 +26,7 @@ import org.molgenis.util.Tuple;
  */
 public class RestInterface
 {
-	private static final transient Logger logger = Logger.getLogger(RestInterface.class.getSimpleName());
+	private static final Logger logger = Logger.getLogger(RestInterface.class);
 
 	/**
 	 * Handle use of the REST api URL pattern /rest/find/[select]?[filter] and
@@ -110,8 +110,6 @@ public class RestInterface
 				{
 
 					TupleWriter writer = new CsvWriter(out);
-					// CsvWriter writer = new CsvFileWriter( new
-					// File("c:/testout.txt") );
 					if (rulesList != null) db.find(getClassForName(entityName), writer,
 							rulesList.toArray(new QueryRule[rulesList.size()]));
 					else
@@ -161,12 +159,13 @@ public class RestInterface
 		else
 		{
 			Tuple requestTuple = new HttpServletRequestTuple(request);
-			String queryString = "";
+			StringBuilder queryStringBuilder = new StringBuilder();
 			for (String name : requestTuple.getFields())
 			{
-				queryString += URLDecoder.decode(name, "UTF-8") + "="
-						+ URLDecoder.decode(requestTuple.getString(name), "UTF-8");
+				queryStringBuilder.append(URLDecoder.decode(name, "UTF-8")).append('=');
+				queryStringBuilder.append(URLDecoder.decode(requestTuple.getString(name), "UTF-8"));
 			}
+			String queryString = queryStringBuilder.toString();
 			logger.debug("handle find query via http-post with parameters: " + queryString);
 			rulesList = QueryRuleUtil.fromRESTstring(queryString);
 		}

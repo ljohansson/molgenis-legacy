@@ -4,6 +4,7 @@ import java.io.File;
 import java.io.FileOutputStream;
 import java.io.OutputStream;
 import java.io.OutputStreamWriter;
+import java.nio.charset.Charset;
 import java.util.Map;
 
 import org.apache.log4j.Logger;
@@ -15,7 +16,7 @@ import freemarker.template.Template;
 
 public class MolgenisServletContextGen extends Generator
 {
-	public static final transient Logger logger = Logger.getLogger(MolgenisServletContextGen.class);
+	private static final Logger logger = Logger.getLogger(MolgenisServletContextGen.class);
 
 	@Override
 	public String getDescription()
@@ -42,7 +43,7 @@ public class MolgenisServletContextGen extends Generator
 		templateArgs.put("db_jndiname", options.db_jndiname);
 
 		OutputStream targetOut = new FileOutputStream(target);
-		template.process(templateArgs, new OutputStreamWriter(targetOut));
+		template.process(templateArgs, new OutputStreamWriter(targetOut, Charset.forName("UTF-8")));
 		targetOut.close();
 
 		logger.info("generated " + target);

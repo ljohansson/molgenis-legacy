@@ -2,28 +2,24 @@ package org.molgenis.framework.ui.html;
 
 public class VerticalLayout extends FlowLayout
 {
+	@Override
 	public String render()
 	{
-		String returnString = "";
+		StringBuilder strBuilder = new StringBuilder();
 		for (HtmlElement i : this.getElements())
 		{
 			if (i instanceof HtmlInput<?>)
 			{
 				HtmlInput<?> input = (HtmlInput<?>) i;
-				returnString += "<label>" + input.getLabel() + "</label><br/>" + input.toHtml() + "<br/>";
-				// if (!"".equals(input.getDescription()))
-				// {
-				// returnString += "<div class=\"molgenis_help\">"
-				// + input.getDescription() + "</div><br/>";
-				// }
+				strBuilder.append("<label>").append(input.getLabel()).append("</label><br/>");
+				strBuilder.append(input.toHtml()).append("<br/>");
 			}
 			else
 			{
-				returnString += i.render() + "<br/>";
+				strBuilder.append(i.render()).append("<br/>");
 			}
 
 		}
-		return returnString;
+		return strBuilder.toString();
 	}
-
 }

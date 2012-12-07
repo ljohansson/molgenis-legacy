@@ -176,7 +176,7 @@ public class Parameter implements Serializable
 
 		this.description = "";
 
-		if (this.label == null || this.label == "") this.label = this.name;
+		if (this.label == null || this.label.isEmpty()) this.label = this.name;
 
 		// varchar
 		this.varchar_length = LENGTH_NOT_SET;
@@ -371,6 +371,7 @@ public class Parameter implements Serializable
 	 * 
 	 * @return The string-representation.
 	 */
+	@Override
 	public String toString()
 	{
 		String str = "Parameter(";
@@ -402,6 +403,7 @@ public class Parameter implements Serializable
 	 * @return True if this object is the same as the obj argument, false
 	 *         otherwise.
 	 */
+	@Override
 	public boolean equals(Object obj)
 	{
 		if (obj != null && obj instanceof Parameter)
@@ -418,6 +420,7 @@ public class Parameter implements Serializable
 	 * 
 	 * @return The hash-value for this field.
 	 */
+	@Override
 	public int hashCode()
 	{
 		return this.name.hashCode();

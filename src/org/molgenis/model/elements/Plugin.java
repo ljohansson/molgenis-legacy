@@ -29,6 +29,7 @@ public class Plugin extends UISchema
 			this.tag = tag;
 		}
 
+		@Override
 		public String toString()
 		{
 			return this.tag;
@@ -36,13 +37,14 @@ public class Plugin extends UISchema
 
 		public static Flavor getPluginMethod(String method) throws MolgenisModelException
 		{
-			String options = "";
+			StringBuilder optionsBuilder = new StringBuilder();
 			for (Flavor p : Flavor.values())
 			{
 				if (p.toString().equalsIgnoreCase(method)) return p;
-				options += p.toString() + ", ";
+				optionsBuilder.append(p.toString()).append(", ");
 			}
-			throw new MolgenisModelException("method='" + method + "' is UNKNOWN for plugin. Valid options: " + options);
+			throw new MolgenisModelException("method='" + method + "' is UNKNOWN for plugin. Valid options: "
+					+ optionsBuilder.toString());
 		}
 	};
 
@@ -60,6 +62,7 @@ public class Plugin extends UISchema
 	/**
 	 * 
 	 */
+	@Override
 	public Type getType()
 	{
 		return Type.PLUGIN;
@@ -106,6 +109,7 @@ public class Plugin extends UISchema
 		this.readonly = readonly;
 	}
 
+	@Override
 	public String toString()
 	{
 		if (getRecord() != null)

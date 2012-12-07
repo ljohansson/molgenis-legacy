@@ -2,6 +2,7 @@ package org.molgenis.generators.sql;
 
 import java.io.ByteArrayOutputStream;
 import java.io.OutputStreamWriter;
+import java.nio.charset.Charset;
 import java.sql.Connection;
 import java.sql.DriverManager;
 import java.sql.Statement;
@@ -17,7 +18,7 @@ import freemarker.template.Template;
 
 public class DerbyCreateSubclassPerTableGen extends Generator
 {
-	public static final transient Logger logger = Logger.getLogger(DerbyCreateSubclassPerTableGen.class);
+	private static final Logger logger = Logger.getLogger(DerbyCreateSubclassPerTableGen.class);
 
 	@Override
 	public void generate(Model model, MolgenisOptions options) throws Exception
@@ -39,14 +40,14 @@ public class DerbyCreateSubclassPerTableGen extends Generator
 
 			// generate
 			ByteArrayOutputStream out = new ByteArrayOutputStream();
-			template.process(templateArgs, new OutputStreamWriter(out));
+			template.process(templateArgs, new OutputStreamWriter(out, Charset.forName("UTF-8")));
 
 			// send to database
 			stmt = conn.createStatement();
-			stmt.executeUpdate(out.toString());
+			stmt.executeUpdate(out.toString("UTF-8"));
 
 			// send to log
-			logger.debug("created hsql table: " + out.toString());
+			logger.debug("created hsql table: " + out.toString("UTF-8"));
 		}
 
 		// shutdown

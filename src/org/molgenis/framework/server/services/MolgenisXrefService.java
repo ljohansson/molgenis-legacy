@@ -14,6 +14,7 @@ import java.util.Map.Entry;
 
 import javax.servlet.http.HttpServletResponse;
 
+import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang.StringEscapeUtils;
 import org.apache.commons.lang.StringUtils;
 import org.apache.log4j.Logger;
@@ -147,14 +148,14 @@ public class MolgenisXrefService implements MolgenisService
 		for (int i = 0; i < records.size(); i++)
 		{
 			final String key = records.get(i).get(xrefField).toString();
-			String value = "";
+			StringBuilder valueBuilder = new StringBuilder();
 			for (int j = 0; j < xref_labels.size(); j++)
 			{
 				// hack
-				if (j > 0) value += "|";
-				value += records.get(i).get(xref_labels.get(j)).toString();
+				if (j > 0) valueBuilder.append('|');
+				valueBuilder.append(records.get(i).get(xref_labels.get(j)).toString());
 			}
-			values.put(key, value);
+			values.put(key, valueBuilder.toString());
 		}
 
 		// make JSON object string
@@ -204,7 +205,7 @@ public class MolgenisXrefService implements MolgenisService
 		}
 		finally
 		{
-			db.close();
+			IOUtils.closeQuietly(db);
 			return result;
 		}
 	}

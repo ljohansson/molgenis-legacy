@@ -87,9 +87,10 @@ public class FileInput extends HtmlInput<Object>
 	/**
 	 * {@inheritDoc}. Extended to show download button.
 	 */
+	@Override
 	public String getValue()
 	{
-		if (super.getValue() != "") return super.getValue()
+		if (!super.getValue().isEmpty()) return super.getValue()
 				+ "<input class=\"manbutton\" type=\"image\" src=\"generated-res/img/download.png\" alt=\"download\" onclick=\"this.form.__filename.value = '"
 				+ super.getValue() + "';this.form.__action.value='" + ACTION_DOWNLOAD + "'; return true;\"/>";
 		return super.getValue();

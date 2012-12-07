@@ -20,7 +20,6 @@ import java.util.Vector;
 
 import org.apache.commons.lang.StringUtils;
 import org.apache.commons.lang.WordUtils;
-import org.apache.log4j.Logger;
 import org.molgenis.fieldtypes.CharField;
 import org.molgenis.fieldtypes.EnumField;
 import org.molgenis.fieldtypes.FieldType;
@@ -42,49 +41,10 @@ import org.molgenis.util.Tree;
  */
 public class Field implements Serializable
 {
-
-	public final static String TYPE_FIELD = "__Type";
-	public final transient Logger logger = Logger.getLogger(Field.class);
-
-	/**
-     * 
-     */
-	public class XRefLabel
-	{
-
-		/**
-         */
-		public Vector<String> getFields()
-		{
-			return fields;
-		}
-
-		/**
-         */
-		public String getFormat()
-		{
-			return format;
-		}
-
-		/**
-         */
-		public String toString()
-		{
-			return "XRefLabel: " + String.format(format, fields.toArray());
-		}
-
-		/** */
-		public Vector<String> fields = new Vector<String>();
-		/** */
-		public String format;
-	};
-
+	public static final String TYPE_FIELD = "__Type";
 	/** Fixed value used for determining the not-set value for the varchar. */
-	public static final int LENGTH_NOT_SET = 0;
+	private static final int LENGTH_NOT_SET = 0;
 
-	/**
-	 * Empty constructor
-	 */
 	public Field(Entity parent, String name, FieldType type)
 	{
 		this(parent, type, name, name, false, false, false, null, null);
@@ -423,6 +383,7 @@ public class Field implements Serializable
 	 * 
 	 * @return Whether this field is a xref.
 	 */
+	// FIXME rename to isXref
 	public boolean isXRef()
 	{
 		return type instanceof XrefField || type instanceof MrefField;
@@ -433,6 +394,7 @@ public class Field implements Serializable
 	 * 
 	 * @return Whether this field is a mref.
 	 */
+	// FIXME rename to isMref
 	public boolean isMRef()
 	{
 		return type instanceof MrefField;
@@ -449,6 +411,7 @@ public class Field implements Serializable
 		return this.default_value;
 	}
 
+	// FIXME correct typo in method name (v --> f)
 	public void setDevaultValue(String value)
 	{
 		this.default_value = value;
@@ -476,18 +439,8 @@ public class Field implements Serializable
 	/**
      * 
      */
-	public void setEnumOptions(Vector<String> options) // throws Exception
+	public void setEnumOptions(Vector<String> options)
 	{
-		// if (this.type != Type.ENUM)
-		// {
-		// throw new Exception("Field is not a ENUM, so options cannot be
-		// set.");
-		// }
-		// if (options.size() == 0)
-		// {
-		// throw new Exception("Enum must have at least one option");
-		// }
-
 		this.enum_options = options;
 	}
 
@@ -546,6 +499,7 @@ public class Field implements Serializable
 	}
 
 	// xref access methods
+	// FIXME rename setXRefEntity to setXrefEntityName (R --> r, +Name)
 	public void setXRefEntity(String xref_entity)
 	{
 		this.xref_entity = xref_entity;
@@ -566,15 +520,9 @@ public class Field implements Serializable
 	 *             When this field is not of type Type.XREF_SINGLE or
 	 *             Type.XREF_MULTIPLE
 	 */
-	public void setXRefVariables(String entity, String field, List<String> labels) // throws
-	// Exception
+	// FIXME rename setXRefVariables to setXrefVariables
+	public void setXRefVariables(String entity, String field, List<String> labels)
 	{
-		// if (this.type != Type.XREF_SINGLE && this.type != Type.XREF_MULTIPLE)
-		// {
-		// throw new Exception("Field is not a XREF, so xref-variables cannot be
-		// set.");
-		// }
-
 		this.xref_entity = entity;
 		this.xref_field = field;
 		this.xref_labels = labels;
@@ -624,8 +572,7 @@ public class Field implements Serializable
 	 *             When this field is not of type Type.XREF_SINGLE or
 	 *             Type.XREF_MULTIPLE
 	 */
-	public Field getXrefField() throws MolgenisModelException // throws
-	// Exception
+	public Field getXrefField() throws MolgenisModelException
 	{
 		if (!(this.type instanceof XrefField) && !(this.type instanceof MrefField))
 		{
@@ -641,6 +588,7 @@ public class Field implements Serializable
 		return result;
 	}
 
+	// FIXME consistency: throw MolgenisModelException if type is not correct
 	public String getXrefFieldName()
 	{
 		return this.xref_field;
@@ -663,7 +611,7 @@ public class Field implements Serializable
 		List<String> label_names = new ArrayList<String>();
 		for (String label : this.getXrefLabelsTemp())
 		{
-			label_names.add(label.replace(".", "_").replace(this.getXrefEntity() + "_", ""));
+			label_names.add(label.replace(this.getXrefEntityName() + ".", ""));
 		}
 		return label_names;
 	}
@@ -772,11 +720,13 @@ public class Field implements Serializable
 			{
 				// match agains all known labels
 				Map<String, List<Field>> candidates = this.allPossibleXrefLabels();
-				for (String test : candidates.keySet())
+				for (Entry<String, List<Field>> entry : candidates.entrySet())
 				{
-					if (test.toLowerCase().equals(label.toLowerCase()))
+					String key = entry.getKey();
+					if (key.toLowerCase().equals(label.toLowerCase()))
 					{
-						result.add(candidates.get(test).get(candidates.get(test).size() - 1));
+						List<Field> value = entry.getValue();
+						result.add(value.get(value.size() - 1));
 					}
 				}
 
@@ -802,6 +752,7 @@ public class Field implements Serializable
 		return result;
 	}
 
+	// FIXME consistency: check if this is a xref field
 	public List<String> getXrefLabelsTemp() throws MolgenisModelException
 	{
 		if (xref_labels == null || xref_labels.size() == 0)
@@ -916,6 +867,7 @@ public class Field implements Serializable
 	 * 
 	 * @return The string-representation.
 	 */
+	@Override
 	public String toString()
 	{
 		String str = "Field(";
@@ -980,6 +932,7 @@ public class Field implements Serializable
 	 * @return True if this object is the same as the obj argument, false
 	 *         otherwise.
 	 */
+	@Override
 	public boolean equals(Object obj)
 	{
 		if (obj != null && obj instanceof Field)
@@ -996,6 +949,7 @@ public class Field implements Serializable
 	 * 
 	 * @return The hash-value for this field.
 	 */
+	@Override
 	public int hashCode()
 	{
 		return this.name.hashCode();
@@ -1140,6 +1094,7 @@ public class Field implements Serializable
 		this.entity = entity;
 	}
 
+	// FIXME rename to setXrefFieldName
 	public void setXrefField(String xrefField)
 	{
 		this.xref_field = xrefField;
@@ -1322,6 +1277,7 @@ public class Field implements Serializable
 		return this.tableName;
 	}
 
+	// FIXME database specific: delete method or move to utility class
 	public String getSqlName()
 	{
 		if (StringUtils.isNotEmpty(this.tableName))
